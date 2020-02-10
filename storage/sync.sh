@@ -33,6 +33,7 @@ unlock
 
 # Sync
 echo 'Syncing from S3...'
+umask 177
 aws s3 sync s3://${S3_BUCKET}/ /etc/wireguard --exclude 'lock/*'
 echo 'Done.'
 

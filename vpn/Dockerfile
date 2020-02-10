@@ -2,5 +2,4 @@ FROM ryansch/wireguard:latest
 MAINTAINER Ryan Schlesinger <ryan@outstand.com>
 
 RUN mkdir -p /etc/wireguard/lock
-COPY prod-entrypoint.sh /prod-entrypoint.sh
-ENTRYPOINT ["/usr/bin/tini", "-g", "--", "/prod-entrypoint.sh"]
+COPY entrypoint.sh /docker-entrypoint.sh

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # From: https://gist.github.com/przemoc/571091
 ## Copyright (C) 2009  Przemyslaw Pawelczyk <przemoc@gmail.com>
@@ -44,5 +44,47 @@ if [ "$1" = 'wg' ] || [ "$1" = 'wg-quick' ]; then
   echo 'Config sync detected.'
 fi
 
-# Pass control to docker-entrypoint.sh:
-/docker-entrypoint.sh
+install_module () {
+  cd /wireguard/src
+  echo "Installing the wireguard kernel module..."
+
+
+  DKMSDIR=/usr/src/wireguard-${WIREGUARD_MODULE_VERSION} make dkms-install
+  dkms install wireguard/${WIREGUARD_MODULE_VERSION}
+  modprobe wireguard
+
+  echo "Successfully built and installed the wireguard kernel module!"
+}
+
+lsmod | grep wireguard
+test $? -eq 0 || install_module
+
+# Find a Wireguard interface
+interfaces=`find /etc/wireguard -type f`
+if [[ -z $interfaces ]]; then
+    echo "$(date): Interface not found in /etc/wireguard" >&2
+    exit 1
+fi
+
+set -e
+
+for interface in $interfaces; do
+    echo "$(date): Starting Wireguard $interface"
+    wg-quick up $interface
+done
+
+# Add masquerade rule for NAT'ing VPN traffic bound for the Internet
+
+# Handle shutdown behavior
+finish () {
+    echo "$(date): Shutting down Wireguard"
+    for interface in $interfaces; do
+        wg-quick down $interface
+    done
+    exit 0
+}
+
+trap finish SIGTERM SIGINT SIGQUIT
+
+sleep infinity &
+wait $!
