@@ -45,4 +45,4 @@ if [ "$1" = 'wg' ] || [ "$1" = 'wg-quick' ]; then
 fi
 
 # Pass control to docker-entrypoint.sh:
-exec /docker-entrypoint.sh
+/docker-entrypoint.sh
