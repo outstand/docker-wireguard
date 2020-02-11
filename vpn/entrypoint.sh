@@ -56,11 +56,15 @@ install_module () {
   echo "Successfully built and installed the wireguard kernel module!"
 }
 
+if [[ "$1" = 'bash' ]] || [[ "$1" = 'wg' ]] || [[ "$1" = 'wg-quick' ]]; then
+  exec "$@"
+fi
+
 lsmod | grep wireguard
 test $? -eq 0 || install_module
 
 # Find a Wireguard interface
-interfaces=`find /etc/wireguard -type f`
+interfaces=`find /etc/wireguard -maxdepth 1 -type f -name '*.conf'`
 if [[ -z $interfaces ]]; then
     echo "$(date): Interface not found in /etc/wireguard" >&2
     exit 1
