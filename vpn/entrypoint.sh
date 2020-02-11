@@ -77,8 +77,6 @@ for interface in $interfaces; do
     wg-quick up $interface
 done
 
-# Add masquerade rule for NAT'ing VPN traffic bound for the Internet
-
 # Handle shutdown behavior
 finish () {
     echo "$(date): Shutting down Wireguard"
